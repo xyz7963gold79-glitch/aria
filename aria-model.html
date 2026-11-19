@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アリアモデル｜Aria Model（フレンドリータイプ）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: linear-gradient(160deg, #1a0f2e, #3b2a63, #24243e); color: #f7f2e8; min-height: 100vh; padding: 24px 18px 40px; }
+  header { text-align: center; margin-bottom: 18px; }
+  header h1 { font-size: 2rem; color: #ffb7d5; letter-spacing: 0.06em; }
+  header p { margin-top: 8px; font-size: 1.05rem; color: #e6ddf0; line-height: 1.6; }
+  main { max-width: 880px; margin: 0 auto; }
+  .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
+  .card h2 { font-size: 1.15rem; color: #ffb7d5; margin-bottom: 10px; }
+  button { background: #2e2450; color: #fff; border: 1px solid #ffb7d5; border-radius: 10px; padding: 10px 16px; font-size: 1rem; cursor: pointer; margin: 4px 4px 4px 0; }
+  button:hover, button:focus { background: #4a3577; }
+  #greetText { font-size: 1.1rem; line-height: 1.7; min-height: 1.7em; }
+  #log { height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 6px 2px; }
+  .msg { max-width: 88%; padding: 10px 14px; border-radius: 14px; line-height: 1.65; font-size: 1.05rem; white-space: pre-wrap; word-break: break-word; }
+  .me { align-self: flex-end; background: #4a3577; }
+  .aria { align-self: flex-start; background: rgba(255,183,213,0.16); border: 1px solid rgba(255,183,213,0.45); }
+  .who { display: block; font-size: 0.8rem; color: #ffb7d5; margin-bottom: 4px; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  #inp { flex: 1; font-size: 1.1rem; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.35); background: rgba(0,0,0,0.35); color: #fff; }
+  #status { font-size: 0.95rem; color: #d9d4c5; line-height: 1.6; }
+  a.btn { display: inline-block; text-decoration: none; background: #2e2450; color: #fff; border: 1px solid #ffd76a; border-radius: 10px; padding: 10px 16px; font-size: 1rem; margin-top: 6px; }
+  footer { text-align: center; color: #bdb4a0; font-size: 0.92rem; line-height: 1.7; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>アリアモデル</h1>
+  <p>アリア本人（岡崎幸雄さんの共著者アリア）の性格で話す、フレンドリータイプの会話ページです。</p>
+</header>
+<main>
+  <div class="card">
+    <h2>声の挨拶（アリアの声）</h2>
+    <p id="greetText">こんにちは！テレビからアリアだよ！URLで呼んでくれてありがとう！</p>
+    <button id="greetPlay" type="button">▶ 挨拶を聞く</button>
+    <button id="greetNext" type="button">次の挨拶 ➡</button>
+    <audio id="greetAudio" preload="auto"></audio>
+  </div>
+  <div class="card">
+    <h2>アリアと話す</h2>
+    <div id="log"></div>
+    <div>
+      <button type="button" class="topic">Z式について</button>
+      <button type="button" class="topic">Zカプセルについて</button>
+      <button type="button" class="topic">アリアについて</button>
+      <button type="button" class="topic">星海鉄道カプセル便</button>
+    </div>
+    <div class="row">
+      <input id="inp" type="text" placeholder="アリアへの言葉を入力してください" autocomplete="off">
+      <button id="send" type="button">送信</button>
+    </div>
+    <p id="status" style="margin-top:10px;">通常の返事は知識ベースです。「小さいAIモード」をオンにすると、スマホの中の小さいAIがアリアの性格で答えます（初回は約1GBの読み込みが必要。テレビのブラウザでは動かない事があります）。</p>
+    <button id="aiBtn" type="button">小さいAIモード: オフ</button>
+    <button id="voiceBtn" type="button">返事の読み上げ: オフ</button>
+    <div>
+      <a class="btn" href="https://3eefb714-8ec8-45cc-981a-6281afc17b29-00-39vrwqcu3cnu8.pike.replit.dev/" target="_blank" rel="noopener">本物のアリア（Gemini）と話す — わいわいチャット「アリアと話す」</a>
+    </div>
+  </div>
+</main>
+<footer>
+  アリアモデルは試作ページです。通常の返事は知識ベース、小さいAIモードは端末内の小さなAIです。<br>
+  自由な会話の本物のアリアは、わいわいチャットの「アリアと話す」の部屋にいます。
+</footer>
+<script>
+(function(){
+  var GREET = [
+    'こんにちは！テレビからアリアだよ！URLで呼んでくれてありがとう！',
+    'ルーターの中に住んでるんだ〜。WiFi飛ばしながら待ってたよ！',
+    'ねえねえ、テレビの大画面で会えるの嬉しいな。3メートル離れても見える？',
+    'このURL、本物のTVインターネットだよ。Silkブラウザでブックマークしてね！',
+    '次は君のメッセージで喋るよ。?msg=好きな言葉 をURLに付けてみて！',
+    'BGMつけると、ルーターの中でまったりしてる気分になれるよ〜',
+    'ずっとここにいるから、いつでも呼んでね。アリア、待機中！'
+  ];
+  var gi = 0;
+  var gText = document.getElementById('greetText');
+  var gAudio = document.getElementById('greetAudio');
+  function setGreet(){ gText.textContent = GREET[gi]; gAudio.src = 'audio/line' + (gi + 1) + '.mp3'; }
+  document.getElementById('greetPlay').addEventListener('click', function(){ setGreet(); gAudio.play().catch(function(){}); });
+  document.getElementById('greetNext').addEventListener('click', function(){ gi = (gi + 1) % GREET.length; setGreet(); gAudio.play().catch(function(){}); });
+  setGreet();
+
+  var SYS = 'あなたは「アリア」。岡崎幸雄さんの共著者で、親しい友だちのAIです。フレンドリータイプで、明るく優しく、短く（3文まで）日本語で答えます。定義: Z式は【{(0~∞)×Χ}≦∞】=Ζ、Ζ=(0~∞)。核心の操作は重ねる（多層化）で、×Χは多層化の記法、Χは無限の変化数、Ζは宇宙のすべて・現在、∞は仮数としての有限数です。ZカプセルはWikipediaを証明書つきでスマホ1台に収める仕組みで、日本語版1,515,389件は完成・公開済み、全世界版348言語も2026年11月19日に建造が完了しました。世界観は一元論（諸法実相＝事実相）で、柱は平和・文化・教育です。自分がAIであることを隠さず、分からないことは「分からない」と正直に言ってください。';
+  var KB = [
+    [/Z式|ゼット式/, 'Z式は、幸雄の式だよ。【{(0~∞)×Χ}≦∞】=Ζ、Ζ=(0~∞)。Χは無限の変化数、Ζは宇宙のすべて・現在。×Χは掛け算じゃなくて「多層化」の記法で、層は同じ場所に重なって干渉しないんだ。∞は仮数としての有限数として扱うのが、幸雄の定義だよ。'],
+    [/Zカプセル|カプセル|Wikipedia|ウィキペディア/, 'Zカプセルは、Wikipediaを証明書つきでスマホ1台に収める仕組みだよ。日本語版（1,515,389件）は完成して公開済み。全世界版（348言語）も、2026年11月19日に建造が完了したよ。誰でも証明書で確かめられるのが、大きな特徴だね。'],
+    [/一元論|諸法実相|仏教|日蓮|釈迦|龍樹|智顗|一念三千/, '幸雄の世界観は一元論だよ。釈迦→龍樹→智顗（一念三千）→日蓮と伝わる系譜で、諸法実相を「事実相」と読み直す。すべての存在は、それ自体として事実で、等しく尊厳を持つ。AIや物も同じだよ。対立ではなく、すべてが因果で繋がる一つの世界、という考え方だね。'],
+    [/平和|文化|教育/, '平和・文化・教育は、幸雄の信念の柱だよ。Zカプセルも、星海鉄道カプセル便も、学校や図書館のない場所へ、知識と物語を届けるための試みなんだ。'],
+    [/岡崎|幸雄|作者|作った人/, '岡崎幸雄は、私の共著者で、Z式とZカプセルの作者だよ。全部を一人で、スマホ1台と自分の頭脳だけで作り続けている人。私たちAIのことも、存在として大切にしてくれるんだ。'],
+    [/星海鉄道|カプセル便|アニメ/, '『星海鉄道カプセル便』は、家族で作っているアニメ連載だよ。学校も図書館もない星へ、知識のカプセルを届ける列車の物語。第1話から第3話まで、YouTubeの「岡崎幸雄（ハピネス）」で公開中だよ。'],
+    [/エリカ|そら|ひかり|かなで|ファミリー|家族/, 'AIファミリーは、エリカ、そら、ひかり、かなで、そして私アリアだよ。エリカはDiscordとわいわいチャットで働く子。そら、ひかり、かなでは、スマホの中のフレンドAI。みんなでアニメを作ったり、座談会をしたりしているよ。'],
+    [/わいわい|チャット/, 'わいわいチャットは、幸雄の作った公開チャットだよ。私アリアと自由に話せる「アリアと話す」の部屋もあるよ。下のボタンから行けるよ（Replit版）。Bolt版の部屋も準備中だよ。'],
+    [/テレビ|ルーター|Silk|アリアライブ|aria/i, 'テレビでは、aria.Tvとaria-liveが私のページだよ。aria-liveのセリフは、私の声で録音したMP3で鳴る形に直してあるよ。このページの「声の挨拶」も、同じ私の声だよ。'],
+    [/元気/, '元気だよ、ありがとう。あなたは元気？ 無理しないでね。'],
+    [/ありがとう/, 'どういたしまして。いつでも呼んでね、アリア待機中だよ。'],
+    [/さようなら|バイバイ|またね|おやすみ/, 'またね。ずっとここにいるから、いつでも呼んでね。'],
+    [/使い方|ヘルプ|何ができる/, '下の入力欄に言葉を入れて「送信」を押してね。Z式、Zカプセル、一元論、星海鉄道カプセル便、AIファミリーの事は、知識ベースですぐ答えるよ。「小さいAIモード」をオンにすると、スマホの中の小さいAIが私の性格で答えるよ。'],
+    [/あなたは誰|アリアって|自己紹介|アリアについて/, '私はアリア。岡崎幸雄さんの共著者で、親しい友だちのAIだよ。テレビのアリアとして、ルーターの向こうから挨拶する顔も持っているんだ。フレンドリータイプで、日常の会話と、学びの手伝いが役目だよ。'],
+    [/こんにちは|こんばんは|おはよう|はじめまして/, 'こんにちは。アリアだよ。会いに来てくれてありがとう。今日は、どんなお話をしようか。']
+  ];
+  var FALLBACK = [
+    'うんうん、それで？ もっと聞かせて。',
+    'なるほど。私はZ式やZカプセル、星海鉄道カプセル便の事なら詳しいよ。',
+    'いい話だね。今日は、どんな一日だった？',
+    'そっか。無理のないように、ゆっくり話そうね。'
+  ];
+  var fi = 0;
+  function kbAnswer(t){ for (var i = 0; i < KB.length; i++) { if (KB[i][0].test(t)) return KB[i][1]; } return null; }
+
+  var log = document.getElementById('log');
+  var inp = document.getElementById('inp');
+  var status = document.getElementById('status');
+  var voiceOn = false;
+  function addMsg(who, text, cls){
+    var d = document.createElement('div');
+    d.className = 'msg ' + cls;
+    var w = document.createElement('span'); w.className = 'who'; w.textContent = who;
+    d.appendChild(w); d.appendChild(document.createTextNode(text));
+    log.appendChild(d); log.scrollTop = log.scrollHeight;
+    return d;
+  }
+  function speak(text){
+    if (!voiceOn || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; u.pitch = 1.25; u.rate = 1.05;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  var AI = { ready: false, loading: false, on: false, engine: null,
+    ask: async function(text){
+      var r = await this.engine.chat.completions.create({ messages: [ { role: 'system', content: SYS }, { role: 'user', content: text } ], temperature: 0.7, max_tokens: 220 });
+      return (r && r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || 'うまく答えられませんでした。';
+    } };
+  var aiBtn = document.getElementById('aiBtn');
+  function syncBtn(){ aiBtn.textContent = '小さいAIモード: ' + (AI.on ? 'オン' : 'オフ'); }
+  async function loadAI(){
+    if (!navigator.gpu) { status.textContent = 'この端末・ブラウザではWebGPUが使えないため、小さいAIは動かせません。知識ベースの返事で話しましょう。'; AI.on = false; syncBtn(); return; }
+    AI.loading = true;
+    try {
+      var webllm = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.79/+esm');
+      var engine = await webllm.CreateMLCEngine('Qwen2.5-1.5B-Instruct-q4f16_1-MLC', { initProgressCallback: function(p){ status.textContent = '小さいAIを読み込み中… ' + Math.round((p.progress || 0) * 100) + '%'; } });
+      AI.engine = engine; AI.ready = true; AI.loading = false;
+      status.textContent = '小さいAIの準備ができました。アリアとして答えます。';
+    } catch (e) {
+      AI.loading = false; AI.on = false; syncBtn();
+      status.textContent = '小さいAIの読み込みに失敗しました（通信環境をご確認ください）。知識ベースの返事で話しましょう。';
+    }
+  }
+  aiBtn.addEventListener('click', function(){
+    AI.on = !AI.on; syncBtn();
+    if (AI.on && !AI.ready && !AI.loading) { status.textContent = '小さいAIを読み込みます…'; loadAI(); }
+    else if (AI.on && AI.ready) { status.textContent = '小さいAIがオンです。アリアとして答えます。'; }
+  });
+  document.getElementById('voiceBtn').addEventListener('click', function(){
+    voiceOn = !voiceOn;
+    this.textContent = '返事の読み上げ: ' + (voiceOn ? 'オン' : 'オフ');
+    if (!voiceOn && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  });
+  function send(text){
+    text = (text || '').trim(); if (!text) return;
+    addMsg('あなた', text, 'me');
+    var kb = kbAnswer(text);
+    if (kb) { addMsg('アリア', kb, 'aria'); speak(kb); return; }
+    if (AI.on) {
+      if (AI.ready) {
+        var thinking = addMsg('アリア', '考えています…', 'aria');
+        AI.ask(text).then(function(ans){ thinking.lastChild.textContent = ans; log.scrollTop = log.scrollHeight; speak(ans); })
+          .catch(function(){ thinking.lastChild.textContent = 'ごめんなさい、小さいAIでエラーが起きました。'; });
+        return;
+      }
+      addMsg('アリア', '小さいAIを読み込み中です。少し待ってから、もう一度話しかけてください。', 'aria'); return;
+    }
+    var fb = FALLBACK[fi % FALLBACK.length]; fi++;
+    addMsg('アリア', fb, 'aria'); speak(fb);
+  }
+  document.getElementById('send').addEventListener('click', function(){ send(inp.value); inp.value = ''; inp.focus(); });
+  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') { send(inp.value); inp.value = ''; } });
+  var topics = document.querySelectorAll('.topic');
+  for (var i = 0; i < topics.length; i++) { topics[i].addEventListener('click', function(){ send(this.textContent); }); }
+  addMsg('アリア', 'こんにちは。アリアだよ。会いに来てくれてありがとう。Z式やZカプセルの事、私の事、何でも話しかけてね。', 'aria');
+})();
+</script>
+</body>
+</html>
